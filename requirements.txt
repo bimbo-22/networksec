@@ -3,3 +3,9 @@ pandas
 numpy
 scikit-learn
 pymongo
+setuptools
+certifi
+
+
+-e .
+# -e . is used to install the package in editable mode, which allows you to make changes to the code without reinstalling the package.
