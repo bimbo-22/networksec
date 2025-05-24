@@ -5,6 +5,8 @@ import os, sys
 import numpy as np
 import dill
 import pickle
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import f1_score
 
 def read_yaml_file(file_path: str) -> dict:
     try:
@@ -37,11 +39,52 @@ def save_numpy_array_data(file_path: str, array: np.array):
     
 def save_object(file_path: str, obj: object) -> None:
     try:
-        logging.info("Entered the save_object method of MainUtils class")
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
         with open(file_path, "wb") as file_obj:
             pickle.dump(obj, file_obj)
         logging.info("Exited the save_object method of MainUtils class")
     except Exception as e:
+        raise NetworkSecurityException(e, sys) from e 
+    
+def load_object(file_path: str) -> object:
+    try:
+        if not os.path.exists(file_path):
+            raise Exception(f"File {file_path} does not exist.")
+        with open(file_path, "rb") as file_obj:
+            print(file_obj)
+            return pickle.load(file_obj)
+    except Exception as e:
         raise NetworkSecurityException(e, sys) from e
     
+def load_numpy_array_data(file_path: str) -> np.array:
+    try:
+        with open(file_path, "rb") as file_obj:
+            return np.load(file_obj)
+    except Exception as e:
+        raise NetworkSecurityException(e, sys) from e
+    
+def evaluate_models(X_train, y_train, X_test, y_test, models, params):
+    try:
+        report = {}
+        for model_name, model in models.items():
+            model_params = params[model_name]
+            
+            gs = GridSearchCV(model, model_params, cv=3, verbose=0)
+            gs.fit(X_train, y_train)
+            
+            model.set_params(**gs.best_params_)
+            model.fit(X_train, y_train)
+            
+            y_train_pred = model.predict(X_train)
+            
+            y_test_pred = model.predict(X_test)
+            
+            train_model_score = f1_score(y_train, y_train_pred, average='weighted')
+            
+            test_model_score = f1_score(y_test, y_test_pred, average='weighted')
+            
+            report[model_name] = test_model_score
+        return report
+            
+    except Exception as e:
+        raise NetworkSecurityException(e, sys) from e
