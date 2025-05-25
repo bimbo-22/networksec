@@ -6,6 +6,7 @@ from networksecurity.entity.artifact_entity import DataTransformationArtifact, M
 from networksecurity.utils.main_utils.utils import load_object, save_object, load_numpy_array_data,evaluate_models
 from networksecurity.utils.ml_utils.model.estimator import NetworkModel
 from networksecurity.utils.ml_utils.metric.classification_metric import get_classification_score
+import dagshub
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import r2_score
@@ -16,6 +17,8 @@ from sklearn.ensemble import (
     GradientBoostingClassifier,
     AdaBoostClassifier
 )
+
+dagshub.init(repo_owner='bimbo-22', repo_name='networksec', mlflow=True)
 
 import mlflow
 
@@ -92,10 +95,13 @@ class ModelTrainer:
         model_dir_path =  os.path.dirname(self.model_trainer_config.trained_model_file_path)
         os.makedirs(model_dir_path, exist_ok=True)
         
-        # call network model to apply same feature engineering using the preprocessor
+        # call network model to apply same feature engineering using the preprocessor 
         Network_Model = NetworkModel(preprocessor = preprocessor, model = best_model)
         
         save_object(file_path=self.model_trainer_config.trained_model_file_path, obj=Network_Model)
+        
+        #model pusher or push to aws boto3 
+        save_object("final_model/model.pkl", best_model)
         
         # Model Trainer Artifact 
         model_trainer_artifact = ModelTrainerArtifact(trained_model_file_path=self.model_trainer_config.trained_model_file_path, train_metric_artifact=classification_train_metric, test_metric_artifact=classification_test_metric)

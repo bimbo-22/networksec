@@ -4,3 +4,4 @@ logs
 __pycache__
 Artifact
 mlruns
+final_model
