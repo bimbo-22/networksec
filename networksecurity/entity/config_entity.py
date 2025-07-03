@@ -6,6 +6,26 @@ from networksecurity.constants import training_pipeline
 print(training_pipeline.ARTIFACT_DIR)
 print(training_pipeline.PIPELINE_NAME)
 
+class FeatureExtractorConfig:
+    def __init__(self):
+        self.serpapi_key = training_pipeline.SERPAPI_KEY
+        if not self.serpapi_key:
+            raise ValueError("SERPAPI key is not set in the environment variables.")
+        
+        self.whois_timeout = training_pipeline.WHOIS_TIMEOUT 
+        self.requests_timeout = training_pipeline.REQUEST_TIMEOUT
+        self.url_length_threshold = training_pipeline.URL_LENGTH_THRESHOLD
+        self.max_subdomains = training_pipeline.MAX_SUBDOMAINS
+        
+        self.ssl_check_enabled = training_pipeline.SSL_CHECK_ENABLED
+        self.min_domain_age_days = training_pipeline.MIN_DOMAIN_AGE_DAYS
+        
+        self.max_links_in_tags = training_pipeline.MAX_LINKS_IN_TAGS
+        self.max_iframes = training_pipeline.MAX_IFRAMES
+        
+        self.temp_feature_dir = training_pipeline.TEMP_FEATURE_DIR
+        self.feature_cache_file = training_pipeline.TEMP_FEATURE_CACHE_FILE
+
 class TrainingPipelineConfig:
     def __init__(self, timestamp=datetime.now()):
         timestamp = timestamp.strftime("%m-%d-%Y-%H-%M-%S")

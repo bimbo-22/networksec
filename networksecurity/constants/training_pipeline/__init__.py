@@ -62,3 +62,16 @@ MODEL_TRAINER_OVER_FITTING_UNDER_FITTING_THRESHOLD: float = 0.05
 
 # cloud
 TRAINING_BUCKET_NAME: str = "network-security-mlops"
+
+# LINK feature extracting
+WHOIS_TIMEOUT: int = 10
+REQUEST_TIMEOUT: int = 10
+SERPAPI_KEY: str = os.getenv("SERPAPI")
+URL_LENGTH_THRESHOLD: int = 100
+MAX_SUBDOMAINS = 5
+SSL_CHECK_ENABLED: bool = True
+MIN_DOMAIN_AGE_DAYS: int = 90
+MAX_LINKS_IN_TAGS = 100
+MAX_IFRAMES = 5
+TEMP_FEATURE_DIR: str = "temp_features"
+TEMP_FEATURE_CACHE_FILE: str = "temp_features_cache.pkl"
