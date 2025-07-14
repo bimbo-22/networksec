@@ -5,6 +5,7 @@ from networksecurity.constants.training_pipeline import TARGET_COLUMN
 from networksecurity.constants.training_pipeline import DATA_TRANSFORMATION_IMPUTER_PARAMS
 from networksecurity.entity.artifact_entity import DataValidationArtifact, DataTransformationArtifact
 from networksecurity.utils.main_utils.utils import save_numpy_array_data, save_object
+from networksecurity.components.feature_extractor import FeatureExtractor
 
 import os
 import sys
@@ -20,6 +21,7 @@ class DataTransformation:
         try:
             self.data_validation_artifact = data_validation_artifact
             self.data_transformation_config = data_transformation_config
+            self.feature_extractor = FeatureExtractor(self.data_transformation_config.feature_extractor_config)
         except Exception as e:
             raise NetworkSecurityException(e, sys)
         
@@ -47,10 +49,13 @@ class DataTransformation:
     def initiate_data_transformation(self) -> DataTransformationArtifact:
         logging.info("Starting the initiation of data transformation")
         try:
-            logging.info("starting data transformation")
             # read the data
             train_df = self.read_data(self.data_validation_artifact.valid_train_file_path)
             test_df = self.read_data(self.data_validation_artifact.valid_test_file_path)
+            
+            # Extractiong features from the url trying to implement the feature extractor
+            logging.info("Extracting features from the url")
+            train_features_list = [self.feature_extractor.extract_features(url) for url in train_df["URL"]]
             
             # drop columns for respective dataframes
             # training 

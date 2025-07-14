@@ -329,8 +329,7 @@ class FeatureExtractor:
                 "web_traffic": self.extract_web_traffic(url),
                 "page_rank": self.extract_page_rank(url),
                 "google_index": self.extract_google_index(url),
-                "links_pointing_to_page": self.extract_links_pointing_to_page(url),
-                "Result": 0
+                "links_pointing_to_page": self.extract_links_pointing_to_page(url)
             }
             return pd.DataFrame([features])
         except Exception as e:
