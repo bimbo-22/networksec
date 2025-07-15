@@ -3,7 +3,7 @@ from networksecurity.exception.exception import NetworkSecurityException
 from networksecurity.entity.config_entity import DataTransformationConfig
 from networksecurity.constants.training_pipeline import TARGET_COLUMN
 from networksecurity.constants.training_pipeline import DATA_TRANSFORMATION_IMPUTER_PARAMS
-from networksecurity.entity.artifact_entity import DataValidationArtifact, DataTransformationArtifact
+from networksecurity.entity.artifact_entity import FeatureExtractorArtifact, DataValidationArtifact, DataTransformationArtifact
 from networksecurity.utils.main_utils.utils import save_numpy_array_data, save_object
 
 import os
@@ -16,8 +16,9 @@ import pickle
 
 
 class DataTransformation:
-    def __init__(self, data_validation_artifact: DataValidationArtifact, data_transformation_config: DataTransformationConfig):
+    def __init__(self, feature_extractor_aritfact: FeatureExtractorArtifact, data_validation_artifact: DataValidationArtifact, data_transformation_config: DataTransformationConfig):
         try:
+            self.feature_extractor_artifact = feature_extractor_aritfact
             self.data_validation_artifact = data_validation_artifact
             self.data_transformation_config = data_transformation_config
         except Exception as e:
@@ -31,6 +32,12 @@ class DataTransformation:
         except Exception as e:
             raise NetworkSecurityException(e, sys)
         
+    def extract_features(self, url: str) -> pd.DataFrame:
+        try:
+            features = self.feature_extractor_artifact.extract_features(url)
+            return features
+        except Exception as e:
+            raise NetworkSecurityException(e, sys)
         
     def get_data_transformer_object(cls) -> Pipeline:
         logging.info("Creating the data transformation pipeline")
