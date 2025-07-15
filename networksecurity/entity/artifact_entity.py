@@ -1,9 +1,15 @@
 from dataclasses import dataclass #acts as decorator for classes that are primarily used to store data.
+import pandas as pd
 
 @dataclass
 class DataIngestionArtifact:
     training_file_path: str
     testing_file_path: str
+
+@dataclass 
+class FeatureExtractorArtifact:
+    features: pd.DataFrame
+
     
 @dataclass
 class DataValidationArtifact:
