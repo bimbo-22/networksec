@@ -15,7 +15,6 @@ from serpapi import GoogleSearch
 import sys
 import os
 import ssl 
-import BeautifulSoup
 from bs4 import BeautifulSoup
 
 class FeatureExtractor:

@@ -17,10 +17,8 @@ from sklearn.ensemble import (
     GradientBoostingClassifier,
     AdaBoostClassifier
 )
-
-dagshub.init(repo_owner='bimbo-22', repo_name='networksec', mlflow=True)
-
 import mlflow
+mlflow_tracking_uri
 
 class ModelTrainer:
     def __init__(self, model_trainer_config: ModelTrainerConfig, data_transformation_artifact: DataTransformationArtifact):
