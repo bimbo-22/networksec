@@ -18,7 +18,9 @@ from sklearn.ensemble import (
     AdaBoostClassifier
 )
 import mlflow
-mlflow_tracking_uri
+mlflow_tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
+mlflow_tracking_username = os.getenv("MLFLOW_TRACKING_USERNAME")
+mlflow_tracking_password = os.getenv("MLFLOW_TRACKING_PASSWORD")
 
 class ModelTrainer:
     def __init__(self, model_trainer_config: ModelTrainerConfig, data_transformation_artifact: DataTransformationArtifact):
@@ -29,7 +31,8 @@ class ModelTrainer:
             raise NetworkSecurityException(e, sys)
         
     def track_mlflow(self,best_model, classificationmetric):
-        with mlflow.start_run():
+        mlflow.set_tracking_uri(mlflow_tracking_uri)
+        with mlflow.start_run(run_name="Model_Training_1"):
             f1_score = classificationmetric.f1_score
             recall_score = classificationmetric.recall_score
             precision_score = classificationmetric.precision_score
