@@ -17,9 +17,9 @@ import pickle
 
 
 class DataTransformation:
-    def __init__(self, feature_extractor_aritfact: FeatureExtractorArtifact, data_validation_artifact: DataValidationArtifact, data_transformation_config: DataTransformationConfig):
+    def __init__(self, data_validation_artifact: DataValidationArtifact, data_transformation_config: DataTransformationConfig):
         try:
-            self.feature_extractor_artifact = feature_extractor_aritfact
+
             self.data_validation_artifact = data_validation_artifact
             self.data_transformation_config = data_transformation_config
             self.feature_extractor = FeatureExtractor(FeatureExtractorConfig())
