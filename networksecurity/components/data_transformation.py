@@ -1,9 +1,9 @@
 from networksecurity.logging.logger import logging
 from networksecurity.exception.exception import NetworkSecurityException
-from networksecurity.entity.config_entity import DataTransformationConfig,FeatureExtractorConfig
+from networksecurity.entity.config_entity import DataTransformationConfig
 from networksecurity.constants.training_pipeline import TARGET_COLUMN
 from networksecurity.constants.training_pipeline import DATA_TRANSFORMATION_IMPUTER_PARAMS
-from networksecurity.entity.artifact_entity import FeatureExtractorArtifact, DataValidationArtifact, DataTransformationArtifact
+from networksecurity.entity.artifact_entity import DataValidationArtifact, DataTransformationArtifact
 from networksecurity.utils.main_utils.utils import save_numpy_array_data, save_object
 from networksecurity.components.feature_extractor import FeatureExtractor
 
@@ -22,7 +22,7 @@ class DataTransformation:
 
             self.data_validation_artifact = data_validation_artifact
             self.data_transformation_config = data_transformation_config
-            self.feature_extractor = FeatureExtractor(FeatureExtractorConfig())
+        
         except Exception as e:
             raise NetworkSecurityException(e, sys)
         
@@ -34,12 +34,6 @@ class DataTransformation:
         except Exception as e:
             raise NetworkSecurityException(e, sys)
         
-    def extract_features(self, url: str) -> pd.DataFrame:
-        try:
-            features = self.feature_extractor.extract_features(url)
-            return features
-        except Exception as e:
-            raise NetworkSecurityException(e, sys)
         
     def get_data_transformer_object(self) -> Pipeline:
         logging.info("Creating the data transformation pipeline")
@@ -61,8 +55,6 @@ class DataTransformation:
             test_df = self.read_data(self.data_validation_artifact.valid_test_file_path)
             
             # Extractiong features from the url trying to implement the feature extractor
-            logging.info("Extracting features from the url")
-            train_features_list = [self.feature_extractor.extract_features(url) for url in train_df["URL"]]
             
             # drop columns for respective dataframes
             # training 
