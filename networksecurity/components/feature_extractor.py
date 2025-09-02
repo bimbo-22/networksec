@@ -10,7 +10,7 @@ import whois
 import dns.resolver
 import dns.rdatatype
 import dns.exception
-from datetime import date
+from datetime import date, datetime
 from serpapi import GoogleSearch
 import sys
 import os
@@ -28,7 +28,7 @@ class FeatureExtractor:
         except Exception as e:
             raise NetworkSecurityException(e, sys)
     
-    def extract_having_ip_address(url):
+    def extract_having_ip_address(self,url):
         pattern = r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'
         return 1 if re.search(pattern, url) else 0
     
@@ -49,8 +49,7 @@ class FeatureExtractor:
         return 1 if "@" in url else 0
     
     def extract_double_slash_redirecting(self, url):
-        parsed_url = urlparse(url)
-        return 1 if parsed_url.count("//") > 1 else 0
+        return 1 if url.count("//") > 1 else 0
     
     def extract_prefix_suffix(self, url):
         domain = urlparse(url).netloc
@@ -63,7 +62,7 @@ class FeatureExtractor:
             return 1
         return 0
     
-    def extract_SSLfinalstate(self, url):
+    def extract_SSL_final_state(self, url):
         try:
             response = requests.get(url, timeout=self.feature_extractor_config.requests_timeout)
             return 1 if response.url.startswith('https://') and not response.history else 0
@@ -75,6 +74,8 @@ class FeatureExtractor:
             w = whois.whois(urlparse(url).netloc)
             creation_date = w.creation_date[0] if isinstance(w.creation_date, list) else w.creation_date
             if creation_date:
+                if isinstance(creation_date, datetime):
+                    creation_date = creation_date.date()
                 age_days = (date.today() - creation_date).days
                 return 1 if age_days >= self.feature_extractor_config.min_domain_age_days else 0
         except Exception as e:
@@ -135,10 +136,10 @@ class FeatureExtractor:
         
     def extract_sfh(self, url):
         try:
-            response = requests.get(url, timeout=self.feature_extractor_config.requests_timeout)
+            response = requests.get( url, timeout=self.feature_extractor_config.requests_timeout)
             soup = BeautifulSoup(response.text, 'html.parser')
             form = soup.find('form')
-            if form in form.attrs:
+            if form and ' action' in form.attrs:
                 action = form.get('action', '').lower()
                 if not action or "about:blank" in action or urlparse(action).netloc != urlparse(url).netloc:
                     return 1
@@ -175,7 +176,7 @@ class FeatureExtractor:
         try: 
             response = requests.get(url, timeout=self.feature_extractor_config.requests_timeout)
             soup = BeautifulSoup(response.text, 'html.parser')
-            elements = soup.find_all(lambda tag: tag.get('onmouseover') or tag.get('onmouseout'))
+            elements = soup.find_all(lambda tag: bool(tag.get('onmouseover') or tag.get('onmouseout')))
             return 1 if elements else 0
         except requests.RequestException as e:
             raise NetworkSecurityException(f"Error extracting on mouseover: {e}", sys)
@@ -216,15 +217,17 @@ class FeatureExtractor:
              w = whois.whois(urlparse(url).netloc)
              creation_date = w.creation_date[0] if isinstance(w.creation_date, list) else w.creation_date
              if creation_date:
-                 age_days = (date.today() - creation_date).days
-                 return 1 if age_days >= self.feature_extractor_config.min_domain_age_days else 0
+                if isinstance(creation_date,datetime):
+                     creation_date = creation_date.date()
+                age_days = (date.today() - creation_date).days
+                return 1 if age_days >= self.feature_extractor_config.min_domain_age_days else 0
         except Exception as e:
             raise NetworkSecurityException(f"Error extracting age of domain: {e}", sys)
         
     def extract_dns_record(self, url):
         try:
             domain = urlparse(url).netloc
-            dns.resolver.default_resolver(domain,  'A')
+            dns.resolver.resolve(domain,  'A')
             return 1 
         except (dns.exception.DNSException, Exception) as e:
             logging.error(f"DNS record extraction failed: {e}")
@@ -307,7 +310,7 @@ class FeatureExtractor:
                 "double_slash_redirecting": self.extract_double_slash_redirecting(url),
                 "prefix_suffix": self.extract_prefix_suffix(url),
                 "subdomain_count": self.extract_subdomain_count(url),
-                "SSL_final_state": self.extract_SSLfinalstate(url),
+                "SSL_final_state": self.extract_SSL_final_state(url),
                 "domain_registration_length": self.extract_domain_registration_length(url),
                 "favicon": self.extract_favicon(url),
                 "port": self.extract_port(url),

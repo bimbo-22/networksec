@@ -1,6 +1,6 @@
 from networksecurity.logging.logger import logging
 from networksecurity.exception.exception import NetworkSecurityException
-from networksecurity.entity.config_entity import DataTransformationConfig
+from networksecurity.entity.config_entity import DataTransformationConfig,FeatureExtractorConfig
 from networksecurity.constants.training_pipeline import TARGET_COLUMN
 from networksecurity.constants.training_pipeline import DATA_TRANSFORMATION_IMPUTER_PARAMS
 from networksecurity.entity.artifact_entity import FeatureExtractorArtifact, DataValidationArtifact, DataTransformationArtifact
@@ -22,7 +22,7 @@ class DataTransformation:
             self.feature_extractor_artifact = feature_extractor_aritfact
             self.data_validation_artifact = data_validation_artifact
             self.data_transformation_config = data_transformation_config
-            self.feature_extractor = FeatureExtractor(self.data_transformation_config.feature_extractor_config)
+            self.feature_extractor = FeatureExtractor(FeatureExtractorConfig())
         except Exception as e:
             raise NetworkSecurityException(e, sys)
         
@@ -36,12 +36,12 @@ class DataTransformation:
         
     def extract_features(self, url: str) -> pd.DataFrame:
         try:
-            features = self.feature_extractor_artifact.extract_features(url)
+            features = self.feature_extractor.extract_features(url)
             return features
         except Exception as e:
             raise NetworkSecurityException(e, sys)
         
-    def get_data_transformer_object(cls) -> Pipeline:
+    def get_data_transformer_object(self) -> Pipeline:
         logging.info("Creating the data transformation pipeline")
         
         try:
