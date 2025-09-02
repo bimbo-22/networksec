@@ -6,20 +6,23 @@ from networksecurity.components.data_ingestion import DataIngestion
 from networksecurity.components.data_validation import DataValidation
 from networksecurity.components.data_transformation import DataTransformation
 from networksecurity.components.model_trainer import ModelTrainer
+from networksecurity.components.feature_extractor import FeatureExtractor
 from networksecurity.cloud.s3_syncer import S3Sync
 from networksecurity.entity.config_entity import (
     TrainingPipelineConfig,
     DataIngestionConfig,
     DataTransformationConfig,
     DataValidationConfig,
-    ModelTrainerConfig
+    ModelTrainerConfig,
+    FeatureExtractorConfig
 )
 
 from networksecurity.entity.artifact_entity import (
     DataIngestionArtifact,
     DataTransformationArtifact,
     DataValidationArtifact,
-    ModelTrainerArtifact
+    ModelTrainerArtifact,
+    FeatureExtractorArtifact
 
 )
 
@@ -53,11 +56,24 @@ class TrainingPipeline:
         except Exception as e:
             raise NetworkSecurityException (e,sys)
         
-    def start_data_transformation(self,data_validation_artifact: DataValidationArtifact):
+    def start_feature_extraction(self):
+        try:
+            logging.info("Starting feature extraction process")
+            feature_extractor_config = FeatureExtractorConfig(training_pipeline_config = self.training_pipeline_config)
+            feature_extractor = FeatureExtractor(feature_extractor_config=feature_extractor_config)
+            logging.info("Feature extraction initiated")
+            feature_extractor_artifact = feature_extractor.initiate_feature_extraction()
+            logging.info(f"Feature extraction process completed successfully {feature_extractor_artifact}")
+            logging.info("==========================")
+            
+            return feature_extractor_artifact
+        except Exception as e:
+            raise NetworkSecurityException (e,sys)
+    def start_data_transformation(self,feature_extractor_artifact: FeatureExtractorArtifact,data_validation_artifact:DataValidationArtifact ) -> DataTransformationArtifact:
         try:
             logging.info("Starting the data transformation process")
             data_transformation_config = DataTransformationConfig(training_pipeline_config = self.training_pipeline_config)
-            data_transformation = DataTransformation(data_transformation_config = data_transformation_config, data_validation_artifact=data_validation_artifact)
+            data_transformation = DataTransformation(*,feature_extractor_artifact=feature_extractor_artifact,data_transformation_config = data_transformation_config, data_validation_artifact=data_validation_artifact)
             logging.info("Data transformation Initiated")
             data_transformation_artifact = data_transformation.initiate_data_transformation()
             logging.info("Data transformation process completed successfully")
@@ -100,6 +116,7 @@ class TrainingPipeline:
         try:
             data_ingestion_artifact = self.start_data_ingestion()
             data_validation_artifact = self.start_data_validation(data_ingestion_artifact=data_ingestion_artifact)
+            #feature_extractor_artifact= self.start_feature_extractor(feature_extractor_artifact=feature_exactor_artifact)
             data_transformation_artifact = self.start_data_transformation(data_validation_artifact=data_validation_artifact)
             model_trainer_artifact = self.start_model_trainer(data_transformation_artifact = data_transformation_artifact)
             
