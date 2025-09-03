@@ -56,36 +56,37 @@ features = {
 }
 # create a basemodel for the features
 class Features(BaseModel):
-    having_IP_Address: Optional[int]
-    URL_Length: Optional[int]
-    Shortining_Service: Optional[int]
-    having_At_Symbol: Optional[int]
+    having_ip_address: Optional[int]
+    url_length: Optional[int]
+    shortining_service: Optional[int]
+    having_at_symbol: Optional[int]
     double_slash_redirecting: Optional[int]
-    Prefix_Suffix: Optional[int]
-    having_Sub_Domain: Optional[int]
-    SSL_final_state: Optional[int]
-    Domain_registeration_length: Optional[int]
-    Favicon: Optional[int]
+    prefix_suffix: Optional[int]
+    having_sub_domain: Optional[int]
+    ssl_final_state: Optional[int]
+    domain_registeration_length: Optional[int]
+    favicon: Optional[int]
     port: Optional[int]
-    HTTPS_token: Optional[int]
-    Request_URL: Optional[int]
-    URL_of_Anchor: Optional[int]
-    Links_in_tags: Optional[int]
-    SFH: Optional[int]
-    Submitting_to_email: Optional[int]
-    Abnormal_URL: Optional[int]
-    Redirect: Optional[int]
+    https_token: Optional[int]
+    request_url: Optional[int]
+    url_of_anchor: Optional[int]
+    links_in_tags: Optional[int]
+    sfh: Optional[int]
+    submitting_to_email: Optional[int]
+    abnormal_url: Optional[int]
+    redirect: Optional[int]
     on_mouseover: Optional[int]
-    RightClick: Optional[int]
-    popUpWidnow: Optional[int]
-    Iframe: Optional[int]
+    rightclick: Optional[int]
+    popupwidnow: Optional[int]
+    iframe: Optional[int]
     age_of_domain: Optional[int]
-    DNSRecord: Optional[int]
+    dnsrecord: Optional[int]
     web_traffic: Optional[int]
-    Page_Rank: Optional[int]
-    Google_Index: Optional[int]
-    Links_pointing_to_page: Optional[int]
-    Statistical_report: Optional[int]
+    page_rank: Optional[int]
+    google_index: Optional[int]
+    links_pointing_to_page: Optional[int]
+    statistical_report: Optional[int]
+
 
 
 
@@ -139,6 +140,30 @@ def create_new_feature_route(url: str, feature: Features):
         features_dict.update(provided_features)
         return features_dict
         # return features_df.to_dict(orient="records")[0]
+    except Exception as e:
+        raise NetworkSecurityException(e, sys)
+    
+@app.post("/check-link")
+def check_link(url:str, feature: Features):
+    try:
+        logging.info(f" check if the url: {url} is malicious or not")
+        feature_extractor = FeatureExtractor(FeatureExtractorConfig())
+        features_df = feature_extractor.extract_features(url)
+        provided_features = feature.model_dump(exclude_unset=True)
+        features_dict = features_df.iloc[0].to_dict()
+        features_dict.update(provided_features)
+
+        final_input_df = pd.DataFrame([features_dict])
+        print(final_input_df)
+
+        preprocessor = load_object("final_model/preprocessor.pkl")
+        final_model = load_object("final_model/model.pkl")
+        network_model = NetworkModel(preprocessor=preprocessor, model=final_model)
+        y_pred = network_model.predict(final_input_df)
+        if y_pred[0] == 1:
+            return {"message": "The link is safe", "prediction": int(y_pred[0])}
+        else:
+            return {"message": "The link is malicious", "prediction": int(y_pred[0])}
     except Exception as e:
         raise NetworkSecurityException(e, sys)
 

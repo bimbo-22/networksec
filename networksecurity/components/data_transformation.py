@@ -53,6 +53,9 @@ class DataTransformation:
             # read the data
             train_df = self.read_data(self.data_validation_artifact.valid_train_file_path)
             test_df = self.read_data(self.data_validation_artifact.valid_test_file_path)
+
+            print(train_df.columns)
+            print(test_df.columns)
             
             # Extractiong features from the url trying to implement the feature extractor
             

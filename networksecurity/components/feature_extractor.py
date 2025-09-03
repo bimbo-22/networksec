@@ -303,15 +303,15 @@ class FeatureExtractor:
     def extract_features(self, url: str) -> pd.DataFrame:
         try:
             features = {
-                "ip_address": self.extract_having_ip_address(url),
+                "having_ip_address": self.extract_having_ip_address(url),
                 "url_length": self.extract_url_length(url),
-                "shortening_service": self.extract_shortening_service(url),
+                "shortining_service": self.extract_shortening_service(url),
                 "having_at_symbol": self.extract_having_at_symbol(url),
                 "double_slash_redirecting": self.extract_double_slash_redirecting(url),
                 "prefix_suffix": self.extract_prefix_suffix(url),
-                "subdomain_count": self.extract_subdomain_count(url),
-                "SSL_final_state": self.extract_SSL_final_state(url),
-                "domain_registration_length": self.extract_domain_registration_length(url),
+                "having_sub_domain": self.extract_subdomain_count(url),
+                "ssl_final_state": self.extract_SSL_final_state(url),
+                "domain_registeration_length": self.extract_domain_registration_length(url),
                 "favicon": self.extract_favicon(url),
                 "port": self.extract_port(url),
                 "https_token": self.extract_https_token(url),
@@ -323,15 +323,16 @@ class FeatureExtractor:
                 "abnormal_url": self.extract_abnormal_url(url),
                 "redirect": self.extract_redirect(url),
                 "on_mouseover": self.extract_on_mouseover(url),
-                "right_click": self.extract_rightclick(url),
-                "popup_window": self.extract_popupwindow(url),
+                "rightclick": self.extract_rightclick(url),
+                "popupwidnow": self.extract_popupwindow(url),
                 "iframe": self.extract_iframe(url),
                 "age_of_domain": self.extract_age_of_domain(url),
-                "dns_record": self.extract_dns_record(url),
+                "dnsrecord": self.extract_dns_record(url),
                 "web_traffic": self.extract_web_traffic(url),
                 "page_rank": self.extract_page_rank(url),
                 "google_index": self.extract_google_index(url),
-                "links_pointing_to_page": self.extract_links_pointing_to_page(url)
+                "links_pointing_to_page": self.extract_links_pointing_to_page(url),
+                "statistical_report": self.extract_statisical_report(url)
             }
             return pd.DataFrame([features])
         except Exception as e:

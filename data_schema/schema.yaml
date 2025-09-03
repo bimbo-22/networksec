@@ -1,66 +1,67 @@
 columns:
-  - having_IP_Address: int64
-  - URL_Length: int64
-  - Shortining_Service: int64
-  - having_At_Symbol: int64
+  - having_ip_address: int64
+  - url_length: int64
+  - shortining_service: int64
+  - having_at_symbol: int64
   - double_slash_redirecting: int64
-  - Prefix_Suffix: int64
-  - having_Sub_Domain: int64
-  - SSLfinal_State: int64
-  - Domain_registeration_length: int64
-  - Favicon: int64
+  - prefix_suffix: int64
+  - having_sub_domain: int64
+  - ssl_final_state: int64
+  - domain_registeration_length: int64
+  - favicon: int64
   - port: int64
-  - HTTPS_token: int64
-  - Request_URL: int64
-  - URL_of_Anchor: int64
-  - Links_in_tags: int64
-  - SFH: int64
-  - Submitting_to_email: int64
-  - Abnormal_URL: int64
-  - Redirect: int64
+  - https_token: int64
+  - request_url: int64
+  - url_of_anchor: int64
+  - links_in_tags: int64
+  - sfh: int64
+  - submitting_to_email: int64
+  - abnormal_url: int64
+  - redirect: int64
   - on_mouseover: int64
-  - RightClick: int64
-  - popUpWidnow: int64
-  - Iframe: int64
+  - rightclick: int64
+  - popupwidnow: int64
+  - iframe: int64
   - age_of_domain: int64
-  - DNSRecord: int64 
+  - dnsrecord: int64
   - web_traffic: int64
-  - Page_Rank: int64
-  - Google_Index: int64
-  - Links_pointing_to_page: int64
-  - Statistical_report: int64
-  - Result: int64
+  - page_rank: int64
+  - google_index: int64
+  - links_pointing_to_page: int64
+  - statistical_report: int64
+  - result: int64
+
 
 
 numerical_columns:
-  - having_IP_Address
-  - URL_Length
-  - Shortining_Service
-  - having_At_Symbol
+  - having_ip_address
+  - url_length
+  - shortining_service
+  - having_at_symbol
   - double_slash_redirecting
-  - Prefix_Suffix
-  - having_Sub_Domain
-  - SSLfinal_State
-  - Domain_registeration_length
-  - Favicon
+  - prefix_suffix
+  - having_sub_domain
+  - ssl_final_state
+  - domain_registeration_length
+  - favicon
   - port
-  - HTTPS_token
-  - Request_URL
-  - URL_of_Anchor
-  - Links_in_tags 
-  - SFH
-  - Submitting_to_email
-  - Abnormal_URL
-  - Redirect
+  - https_token
+  - request_url
+  - url_of_anchor
+  - links_in_tags
+  - sfh
+  - submitting_to_email
+  - abnormal_url
+  - redirect
   - on_mouseover
-  - RightClick
-  - popUpWidnow
-  - Iframe
+  - rightclick
+  - popupwidnow
+  - iframe
   - age_of_domain
-  - DNSRecord 
+  - dnsrecord
   - web_traffic
-  - Page_Rank
-  - Google_Index
-  - Links_pointing_to_page
-  - Statistical_report
-  - Result
+  - page_rank
+  - google_index
+  - links_pointing_to_page
+  - statistical_report
+  - result
