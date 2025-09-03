@@ -69,11 +69,11 @@ class TrainingPipeline:
             return feature_extractor_artifact
         except Exception as e:
             raise NetworkSecurityException (e,sys)
-    def start_data_transformation(self,feature_extractor_artifact: FeatureExtractorArtifact,data_validation_artifact:DataValidationArtifact ) -> DataTransformationArtifact:
+    def start_data_transformation(self,data_validation_artifact:DataValidationArtifact ) -> DataTransformationArtifact:
         try:
             logging.info("Starting the data transformation process")
             data_transformation_config = DataTransformationConfig(training_pipeline_config = self.training_pipeline_config)
-            data_transformation = DataTransformation(*,feature_extractor_artifact=feature_extractor_artifact,data_transformation_config = data_transformation_config, data_validation_artifact=data_validation_artifact)
+            data_transformation = DataTransformation(data_transformation_config = data_transformation_config, data_validation_artifact=data_validation_artifact)
             logging.info("Data transformation Initiated")
             data_transformation_artifact = data_transformation.initiate_data_transformation()
             logging.info("Data transformation process completed successfully")
