@@ -23,6 +23,7 @@ from fastapi.responses import Response
 from starlette.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates # for rendering HTML templates
 from typing import Optional
+from typing import List
 
 import pandas as pd
 
@@ -170,6 +171,36 @@ def check_link(url:str, feature: Features):
 # @app.get("/batch_prediction")
 # async def
     
+@app.post("/check-batch-link")
+def check_batch_link(list_of_urls: List[str]):
+    try:
+        results = {}
+
+        preprocessor = load_object("final_model/preprocessor.pkl")
+        final_model = load_object("final_model/model.pkl")
+        network_model = NetworkModel(preprocessor=preprocessor, model=final_model)
+        feature_extractor = FeatureExtractor(FeatureExtractorConfig())
+
+        for url in list_of_urls:
+            logging.info(f" checking if url: {url} is malicious or not")
+
+            features_df = feature_extractor.extract_features(url)
+            features_dict = features_df.iloc[0].to_dict()
+
+            input_df = pd.DataFrame([features_dict])
+            y_pred = network_model.predict(input_df)
+
+            print(y_pred)
+            if y_pred[0] == 1:
+                results[url] = {"message": "The link is safe", "prediction": int(y_pred[0])}
+            else:
+                results[url] = {"message": "The link is malicious", "prediction": int(y_pred[0])}
+
+        return results
+    except Exception as e:
+        raise NetworkSecurityException(e, sys)
+
+
 if __name__ == "__main__":
     app_run(app,host="0.0.0.0", port=8000)
 

@@ -72,27 +72,34 @@ class FeatureExtractor:
     def extract_domain_registration_length(self, url):
         try:
             w = whois.whois(urlparse(url).netloc)
-            creation_date = w.creation_date[0] if isinstance(w.creation_date, list) else w.creation_date
+            creation_date = w.creation_date
+            if isinstance(creation_date, list):
+                creation_date = creation_date[0]
             if creation_date:
                 if isinstance(creation_date, datetime):
                     creation_date = creation_date.date()
                 age_days = (date.today() - creation_date).days
                 return 1 if age_days >= self.feature_extractor_config.min_domain_age_days else 0
+            return 0
         except Exception as e:
             logging.error(f"Error extracting domain registration length: {e}")
             return 0
+
         
     def extract_favicon(self, url):
-        try: 
+        try:
             response = requests.get(url, timeout=self.feature_extractor_config.requests_timeout)
             soup = BeautifulSoup(response.text, 'html.parser')
             favicon = soup.find("link", rel="icon") or soup.find("link", rel="shortcut icon")
-            if favicon and "href" in favicon.attrs:
-                favicon_url = urlparse(favicon['href']).netloc
-                return 1 if favicon_url and favicon_url != urlparse(url).netloc else 0
+            if favicon:
+                href = favicon.get("href")
+                if href:
+                    favicon_url = urlparse(href).netloc
+                    return 1 if favicon_url and favicon_url != urlparse(url).netloc else 0
             return 0
         except requests.RequestException as e:
             raise NetworkSecurityException(f"Error fetching favicon: {e}", sys)
+
         
     def extract_port(self, url):
         parsed_url = urlparse(url)
@@ -110,20 +117,40 @@ class FeatureExtractor:
             response = requests.get(url, timeout=self.feature_extractor_config.requests_timeout)
             soup = BeautifulSoup(response.text, 'html.parser')
             links = soup.find_all(["a", "img", "script", "link"], href=True)
-            external_count = sum(1 for link in links if urlparse(link.get('src', link.get('href'))).netloc != urlparse(url).netloc)
+
+            if not links:
+                return 0
+
+            external_count = sum(
+                1 for link in links
+                if urlparse(link.get('src') or link.get('href')).netloc != urlparse(url).netloc
+            )
             return 1 if external_count / len(links) > 0.5 else 0
         except requests.RequestException as e:
             raise NetworkSecurityException(f"Error extracting request URL: {e}", sys)
+
         
-    def extract_url_of_anchor(self,url):
+    def extract_url_of_anchor(self, url):
         try:
             response = requests.get(url, timeout=self.feature_extractor_config.requests_timeout)
             soup = BeautifulSoup(response.text, 'html.parser')
             anchors = soup.find_all('a', href=True)
-            external_count = sum(1 for anchor in anchors if urlparse(anchor['href']).netloc != urlparse(url).netloc)
-            return 1 if external_count / len(anchors) > 0.3 else 0
+
+            # handle case: no anchors
+            if not anchors:
+                return 0  # neutral fallback
+
+            external_count = sum(
+                1 for anchor in anchors
+                if urlparse(anchor['href']).netloc != urlparse(url).netloc
+            )
+
+            ratio = external_count / len(anchors)
+            return 1 if ratio > 0.3 else 0
+
         except requests.RequestException as e:
             raise NetworkSecurityException(f"Error extracting URL of anchor: {e}", sys)
+
         
     def extract_links_in_tags(self, url):
         try: 
@@ -136,16 +163,17 @@ class FeatureExtractor:
         
     def extract_sfh(self, url):
         try:
-            response = requests.get( url, timeout=self.feature_extractor_config.requests_timeout)
+            response = requests.get(url, timeout=self.feature_extractor_config.requests_timeout)
             soup = BeautifulSoup(response.text, 'html.parser')
             form = soup.find('form')
-            if form and ' action' in form.attrs:
+            if form:
                 action = form.get('action', '').lower()
                 if not action or "about:blank" in action or urlparse(action).netloc != urlparse(url).netloc:
                     return 1
             return 0
         except requests.RequestException as e:
             raise NetworkSecurityException(f"Error extracting SFH: {e}", sys)
+
         
     def extract_submitting_to_email(self, url):
         try:
@@ -153,12 +181,13 @@ class FeatureExtractor:
             soup = BeautifulSoup(response.text, 'html.parser')
             forms = soup.find_all('form')
             for form in forms:
-                action = form.get('action', '').lower()
+                action = (form.get('action') or "").lower()
                 if "@" in action:
                     return 1
             return 0
         except requests.RequestException as e:
             raise NetworkSecurityException(f"Error extracting submitting to email: {e}", sys)
+
         
     def extract_abnormal_url(self,url):
         special_chars = r'[@_!#$%^&*()<>?/\|}{~:,.]'
